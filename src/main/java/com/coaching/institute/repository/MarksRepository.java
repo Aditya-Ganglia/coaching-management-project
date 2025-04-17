@@ -18,4 +18,6 @@ public interface MarksRepository extends MongoRepository<Marks, String> {
 
     // ✅ (Optional) Fetch all marks by subject + exam type for detailed filtering
     List<Marks> findByStudentIdAndSubjectAndExamTitle(String studentId, String subject, String examTitle);
+
+    
 }

@@ -6,7 +6,7 @@ import com.coaching.institute.service.MarksService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import com.coaching.institute.dto.SubjectResultSummary;
 import java.security.Principal;
 import java.util.List;
 
@@ -64,11 +64,9 @@ public class MarksController {
     ) {
         return ResponseEntity.ok(marksService.getByStudentSubjectAndExam(studentId, subject, examTitle));
     }
-    @GetMapping("/result-summary/student/{studentId}")
-    public ResponseEntity<List<SubjectResultReport>> getResultSummaryByStudent(
-            @PathVariable String studentId
-    ) {
+    // ✅ Get result summary grouped by subject for a student
+    @GetMapping("/summary/student/{studentId}")
+    public ResponseEntity<List<SubjectResultSummary>> getResultSummary(@PathVariable String studentId) {
         return ResponseEntity.ok(marksService.getResultSummaryByStudent(studentId));
     }
-
 }

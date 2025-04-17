@@ -7,6 +7,7 @@ import com.coaching.institute.repository.ClassRepository;
 import com.coaching.institute.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.coaching.institute.dto.SubjectResultSummary;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -63,24 +64,29 @@ public class MarksService {
         return marksRepository.findByStudentIdAndSubject(studentId, subject);
     }
 
-    // ✅ Optional: Get marks for a student for a subject & exam (like Mid Term)
     public List<Marks> getByStudentSubjectAndExam(String studentId, String subject, String examTitle) {
         return marksRepository.findByStudentIdAndSubjectAndExamTitle(studentId, subject, examTitle);
     }
-    public List<SubjectResultReport> getResultSummaryByStudent(String studentId) {
+    // ✅ Optional: Get marks for a student for a subject & exam (like Mid Term)
+    public List<SubjectResultSummary> getResultSummaryByStudent(String studentId) {
         List<Marks> allMarks = marksRepository.findByStudentId(studentId);
 
-        Map<String, SubjectResultReport> subjectMap = new HashMap<>();
+        Map<String, SubjectResultSummary> summaryMap = new HashMap<>();
 
         for (Marks mark : allMarks) {
             String subject = mark.getSubject();
-            String exam = mark.getExamTitle();
 
-            subjectMap.putIfAbsent(subject, new SubjectResultReport(subject));
-            subjectMap.get(subject).addMarks(exam, mark.getMarksObtained(), mark.getMaxMarks());
+            summaryMap.putIfAbsent(subject, new SubjectResultSummary(subject, 0, 0));
+
+            SubjectResultSummary summary = summaryMap.get(subject);
+            summary.setTotalObtained(summary.getTotalObtained() + mark.getMarksObtained());
+            summary.setTotalMax(summary.getTotalMax() + mark.getMaxMarks());
+            summary.setPercentage((summary.getTotalMax() > 0) ?
+                    (summary.getTotalObtained() * 100.0) / summary.getTotalMax() : 0.0);
         }
 
-        return new ArrayList<>(subjectMap.values());
+        return new ArrayList<>(summaryMap.values());
     }
+
 
 }

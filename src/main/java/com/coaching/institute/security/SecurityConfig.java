@@ -1,5 +1,5 @@
 package com.coaching.institute.security;
-
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -35,7 +35,7 @@ public class SecurityConfig {
 
                         // Student-only
                         .requestMatchers("/api/assignments/**/submit").hasAuthority("student")
-
+                        .requestMatchers("/api/marks/summary/student/**").permitAll()
                         // Admin-only
                         .requestMatchers("/api/admin/**").hasAuthority("admin")
                         .requestMatchers("/api/classes/create").hasAuthority("admin")
