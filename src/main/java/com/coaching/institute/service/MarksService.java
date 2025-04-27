@@ -1,6 +1,8 @@
 package com.coaching.institute.service;
 
 import com.coaching.institute.dto.SubjectResultReport;
+import com.coaching.institute.exception.ResourceNotFoundException;
+import com.coaching.institute.exception.UnauthorizedActionException;
 import com.coaching.institute.model.Marks;
 import com.coaching.institute.repository.MarksRepository;
 import com.coaching.institute.repository.ClassRepository;
@@ -29,14 +31,14 @@ public class MarksService {
     // ✅ Add marks with validation
     public Marks addMarks(Marks marks, String teacherEmail) {
         if (!classRepository.existsById(marks.getClassId())) {
-            throw new RuntimeException("Class ID not found");
+            throw new ResourceNotFoundException("Class ID not found");
         }
         if (!userRepository.existsById(marks.getStudentId())) {
-            throw new RuntimeException("Student ID not found");
+            throw new ResourceNotFoundException("Student ID not found");
         }
 
         String teacherId = userRepository.findByEmail(teacherEmail)
-                .orElseThrow(() -> new RuntimeException("Teacher not found"))
+                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found"))
                 .getId();
 
         marks.setAddedBy(teacherId);
@@ -91,7 +93,7 @@ public class MarksService {
     // ✅ Update Marks Logic with Role-Based Access
     public Marks updateMarks(String marksId, Marks updatedMarks, String userEmail) {
         Marks existingMarks = marksRepository.findById(marksId)
-                .orElseThrow(() -> new RuntimeException("Marks not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Marks not found"));
 
         String userRole = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"))
@@ -108,14 +110,14 @@ public class MarksService {
             existingMarks.setDate(updatedMarks.getDate());
             return marksRepository.save(existingMarks);
         } else {
-            throw new RuntimeException("Unauthorized to update these marks");
+            throw new UnauthorizedActionException("You are not authorized to perform this action");
         }
     }
 
     // ✅ Delete Marks Logic with Role-Based Access
     public void deleteMarks(String marksId, String userEmail) {
         Marks existingMarks = marksRepository.findById(marksId)
-                .orElseThrow(() -> new RuntimeException("Marks not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Marks not found"));
 
         String userRole = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"))
@@ -127,10 +129,8 @@ public class MarksService {
         if (userRole.equals("admin") || (userRole.equals("teacher") && existingMarks.getAddedBy().equals(userId))) {
             marksRepository.deleteById(marksId);
         } else {
-            throw new RuntimeException("Unauthorized to delete these marks");
+            throw new UnauthorizedActionException("You are not authorized to perform this action");
         }
     }
-
-
 
 }
