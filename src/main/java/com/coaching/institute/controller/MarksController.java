@@ -69,4 +69,23 @@ public class MarksController {
     public ResponseEntity<List<SubjectResultSummary>> getResultSummary(@PathVariable String studentId) {
         return ResponseEntity.ok(marksService.getResultSummaryByStudent(studentId));
     }
+
+    // ✅ Update Marks
+    @PutMapping("/update/{marksId}")
+    public ResponseEntity<Marks> updateMarks(
+            @PathVariable String marksId,
+            @RequestBody Marks updatedMarks,
+            Principal principal) {
+        return ResponseEntity.ok(marksService.updateMarks(marksId, updatedMarks, principal.getName()));
+    }
+
+    // ✅ Delete Marks
+    @DeleteMapping("/delete/{marksId}")
+    public ResponseEntity<String> deleteMarks(
+            @PathVariable String marksId,
+            Principal principal) {
+        marksService.deleteMarks(marksId, principal.getName());
+        return ResponseEntity.ok("Marks deleted successfully");
+    }
+
 }

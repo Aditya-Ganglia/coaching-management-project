@@ -88,5 +88,49 @@ public class MarksService {
         return new ArrayList<>(summaryMap.values());
     }
 
+    // ✅ Update Marks Logic with Role-Based Access
+    public Marks updateMarks(String marksId, Marks updatedMarks, String userEmail) {
+        Marks existingMarks = marksRepository.findById(marksId)
+                .orElseThrow(() -> new RuntimeException("Marks not found"));
+
+        String userRole = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"))
+                .getRole();
+
+        String userId = userRepository.findByEmail(userEmail).get().getId();
+
+        // Allow Admin OR Teacher (who added the marks)
+        if (userRole.equals("admin") || (userRole.equals("teacher") && existingMarks.getAddedBy().equals(userId))) {
+            existingMarks.setMarksObtained(updatedMarks.getMarksObtained());
+            existingMarks.setMaxMarks(updatedMarks.getMaxMarks());
+            existingMarks.setExamTitle(updatedMarks.getExamTitle());
+            existingMarks.setSubject(updatedMarks.getSubject());
+            existingMarks.setDate(updatedMarks.getDate());
+            return marksRepository.save(existingMarks);
+        } else {
+            throw new RuntimeException("Unauthorized to update these marks");
+        }
+    }
+
+    // ✅ Delete Marks Logic with Role-Based Access
+    public void deleteMarks(String marksId, String userEmail) {
+        Marks existingMarks = marksRepository.findById(marksId)
+                .orElseThrow(() -> new RuntimeException("Marks not found"));
+
+        String userRole = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"))
+                .getRole();
+
+        String userId = userRepository.findByEmail(userEmail).get().getId();
+
+        // Allow Admin OR Teacher (who added the marks)
+        if (userRole.equals("admin") || (userRole.equals("teacher") && existingMarks.getAddedBy().equals(userId))) {
+            marksRepository.deleteById(marksId);
+        } else {
+            throw new RuntimeException("Unauthorized to delete these marks");
+        }
+    }
+
+
 
 }
